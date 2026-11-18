@@ -1,0 +1,44 @@
+{
+  "paths": [
+    {"title":"一个问题，如何成为答案？","duration":"约 35 分钟","description":"沿着问答入口、图配置与检索排序，理解一次问答的主线。","steps":[
+      {"title":"找到请求入口","path":"app/query_process/api/query_service.py","symbol":"query","question":"/query 如何决定同步处理还是创建流式会话？"},
+      {"title":"看懂图的组装","path":"app/query_process/agent/main_graph.py","question":"哪些节点并行检索？商品确认后为什么存在提前输出分支？"},
+      {"title":"理解查询 State","path":"app/query_process/agent/state.py","symbol":"QueryGraphState","question":"original_query、rewritten_query 与 answer 分别在何时出现？"},
+      {"title":"跟踪向量检索","path":"app/query_process/agent/nodes/node_search_embedding.py","symbol":"node_search_embedding","question":"商品名称如何参与过滤？embedding_chunks 从哪里产生？"},
+      {"title":"区分融合与重排","path":"app/query_process/agent/nodes/node_rerank.py","symbol":"node_rerank","question":"RRF 的输出如何与其他文档一起进入重排？"},
+      {"title":"回到答案输出","path":"app/query_process/agent/nodes/node_answer_output.py","symbol":"node_answer_output","question":"答案、SSE 事件与历史记录分别在哪里处理？"}
+    ]},
+    {"title":"一份文档，如何进入知识库？","duration":"约 30 分钟","description":"从文件上传一路走到切块和向量入库，观察 State 如何串起步骤。","steps":[
+      {"title":"找到文件上传入口","path":"app/import_process/api/file_import_service.py","question":"上传任务如何获得 task_id，并交给后台图执行？"},
+      {"title":"区分 PDF 与 Markdown 路径","path":"app/import_process/agent/main_graph.py","symbol":"route_after_entry","question":"is_md_read_enabled 与 is_pdf_read_enabled 如何决定下一步？"},
+      {"title":"观察文档切块","path":"app/import_process/agent/nodes/node_document_split.py","symbol":"node_document_split","question":"md_content 怎样变成 chunks？标题与切片长度如何处理？"},
+      {"title":"追踪 Embedding","path":"app/import_process/agent/nodes/node_bge_embedding.py","symbol":"node_bge_embedding","question":"向量结果是写到 chunks 还是 embeddings_content？以源码为准。"},
+      {"title":"检查最终入库","path":"app/import_process/agent/nodes/node_import_milvus.py","symbol":"node_import_milvus","question":"写入前如何准备 collection、清理旧数据？哪些步骤可能改变数据库？"}
+    ]},
+    {"title":"流式答案，如何回到页面？","duration":"约 20 分钟","description":"只读理解消息队列与 SSE；学习网站本身不会执行问答业务。","steps":[
+      {"title":"创建会话队列","path":"app/utils/sse_utils.py","symbol":"create_sse_queue","question":"session_id 如何关联一个 queue.Queue？"},
+      {"title":"把消息写入队列","path":"app/utils/sse_utils.py","symbol":"push_to_session","question":"当队列不存在时会发生什么？"},
+      {"title":"从队列生成事件","path":"app/utils/sse_utils.py","symbol":"sse_generator","question":"断开连接、队列超时和关闭信号各如何处理？"},
+      {"title":"定位流式接口","path":"app/query_process/api/query_service.py","symbol":"stream","question":"StreamingResponse 使用什么 media_type？页面怎样订阅这个接口？"}
+    ]},
+    {"title":"学会判断一条关系是否可靠","duration":"约 15 分钟","description":"建立证据意识：源码结构、候选调用与运行时事实具有不同含义。","steps":[
+      {"title":"先核对显式配置","path":"app/query_process/agent/main_graph.py","question":"打开一条实线，能否在 add_edge 原文找到两端节点？"},
+      {"title":"再检查符号绑定","path":"app/query_process/api/query_service.py","symbol":"run_query_graph","question":"query_app.invoke 是对象方法，静态名称匹配为什么可能不足以证明完整调用链？"},
+      {"title":"最后核实数据字段","path":"app/import_process/agent/state.py","symbol":"ImportGraphState","question":"State 的类型声明与节点实际返回是否一致？同名字段足以证明数据流吗？"}
+    ]}
+  ],
+  "terms": [
+    {"title":"RAG","english":"RETRIEVAL AUGMENTED GENERATION","definition":"先检索相关材料，再把材料交给语言模型生成回答。检索与生成是两个可以分别检查的阶段。","context":"问答图把多路检索、融合、重排和答案输出组织在一起。","anchor":{"path":"app/query_process/agent/main_graph.py"}},
+    {"title":"LangGraph","english":"STATEFUL WORKFLOW","definition":"用节点、边和共享状态组织工作流。源码配置的边描述可能的执行顺序，具体运行仍受条件和状态影响。","context":"导入图与查询图分别在各自 main_graph.py 中注册、连线并编译。","anchor":{"path":"app/query_process/agent/main_graph.py"}},
+    {"title":"State","english":"WORKFLOW STATE","definition":"流程中共享的数据字典。类型声明说明预期字段，实际读取、修改和返回需要查看节点实现。","context":"QueryGraphState 包含检索文档、问题、答案等字段；ImportGraphState 描述文档路径和切块。","anchor":{"path":"app/query_process/agent/state.py","symbol":"QueryGraphState"}},
+    {"title":"SSE","english":"SERVER SENT EVENTS","definition":"服务器通过 HTTP 连接持续向浏览器发送事件。适用于逐段答案与进度通知。","context":"sse_utils.py 通过会话队列组织事件，query_service.py 返回 text/event-stream。","anchor":{"path":"app/utils/sse_utils.py"}},
+    {"title":"Embedding","english":"TEXT TO VECTORS","definition":"把文本表示为向量，让系统可以按语义相近程度寻找相关内容。","context":"embedding_utils.py 提供 BGE-M3 模型访问与向量生成，导入和检索两侧都会用到。","anchor":{"path":"app/lm/embedding_utils.py"}},
+    {"title":"Milvus","english":"VECTOR DATABASE","definition":"用于保存和检索向量数据的数据库。理解它时要同时关注集合结构、过滤条件和相似度搜索。","context":"milvus_utils.py 封装客户端与混合搜索；入库节点负责准备集合及写入切片。","anchor":{"path":"app/clients/milvus_utils.py"}},
+    {"title":"RRF","english":"RECIPROCAL RANK FUSION","definition":"根据候选项在多个结果列表中的名次进行融合，避免直接比较不同检索方法的原始分数。","context":"node_rrf.py 中可查看具体融合函数与输入列表；不要仅凭图中的多路检索数量判断所有结果都参与 RRF。","anchor":{"path":"app/query_process/agent/nodes/node_rrf.py","symbol":"reciprocal_rank_fusion"}},
+    {"title":"Rerank","english":"RELEVANCE RERANKING","definition":"对已经检索出的候选文档重新评估相关性，并调整顺序、选择更合适的材料。","context":"node_rerank.py 组织文档合并、重排与 Top-K 选择。","anchor":{"path":"app/query_process/agent/nodes/node_rerank.py","symbol":"node_rerank"}},
+    {"title":"HyDE","english":"HYPOTHETICAL DOCUMENT EMBEDDINGS","definition":"先生成假设性的相关文档，再利用其向量进行检索。假设文档是检索辅助材料，不能当成事实证据。","context":"node_search_embedding_hyde.py 包含假设文档生成与向量检索步骤。","anchor":{"path":"app/query_process/agent/nodes/node_search_embedding_hyde.py"}},
+    {"title":"FastAPI","english":"HTTP API FRAMEWORK","definition":"用 Python 函数与路由定义 HTTP 接口，请求模型描述接口接收的数据。","context":"query_service.py 与 file_import_service.py 分别提供问答和导入接口。","anchor":{"path":"app/query_process/api/query_service.py"}},
+    {"title":"MongoDB","english":"DOCUMENT DATABASE","definition":"以文档形式存取数据。聊天应用通常用它管理会话消息和附加字段。","context":"mongo_history_utils.py 封装消息保存、查询与清理；新旧工具文件同时存在，应核对实际 import。","anchor":{"path":"app/clients/mongo_history_utils.py"}},
+    {"title":"MinIO","english":"OBJECT STORAGE","definition":"以对象和对象名存储文件的服务。对象存储与向量数据库分别承担文件保存和语义检索。","context":"图片处理代码使用 MinIO 客户端上传图片、替换文档中的图片链接。","anchor":{"path":"app/import_process/agent/nodes/node_md_img.py"}}
+  ]
+}

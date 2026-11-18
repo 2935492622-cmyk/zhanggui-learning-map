@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="沿真实源码探索掌柜智库，用连接建立理解。"><title>掌柜智库 · 知识探索空间</title>
+<link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+<a class="brand" href="/" aria-label="掌柜智库首页"><span class="brandmark">掌</span><span>掌柜智库<small>KNOWLEDGE STUDIO</small></span></a>
+<div class="workspace"><span class="statusdot"></span> 个人学习空间 <span class="version">LOCAL</span></div>
+<p class="navcaption">工作台</p><nav aria-label="主导航"><button class="nav active" data-page="graph"><span>◈</span> 知识图谱 <small>01</small></button><button class="nav" data-page="paths"><span>↗</span> 学习路径 <small>02</small></button><button class="nav" data-page="glossary"><span>≡</span> 技术术语 <small>03</small></button></nav>
+<div class="side-divider"></div><p class="navcaption">探索入口</p>
+<button class="shortcut" data-scope="overview"><i class="dot green"></i>项目架构<span>↗</span></button><button class="shortcut" data-scope="query"><i class="dot blue"></i>问答查询<span>↗</span></button><button class="shortcut" data-scope="import"><i class="dot amber"></i>知识导入<span>↗</span></button>
+<div class="sidebar-tip"><span>从一条主线开始</span><p>选一个节点，沿着连接回到源码。每一次探索，都让项目更清晰。</p><button id="sideLearn">探索学习路径 ↗</button></div>
+<div class="sidebottom"><div class="sourcebadge"><span class="statusdot"></span> 源码驱动 · 只读空间</div><p id="revision">正在读取仓库…</p><button id="aboutBtn" class="textbutton">数据来源与可信度 ↗</button></div>
+</aside>
+<main>
+<header class="topbar"><div class="breadcrumbs"><span class="muted">学习工作台</span><span class="slash">/</span><strong id="pageTitle">知识图谱</strong></div><div class="searchwrap"><label for="search" class="searchicon">⌕</label><input id="search" aria-label="全局搜索" placeholder="搜索模块、文件、函数…" autocomplete="off"><kbd>/</kbd><div id="searchResults" class="searchresults" hidden></div></div><span class="local-indicator"><span class="statusdot"></span> 本地连接</span><span class="avatar" title="本地学习者">学</span></header>
+<section class="intro"><div><div class="eyebrow"><span></span> YOUR PROJECT, CONNECTED</div><h1>让代码的连接，<span>清晰可见。</span></h1><p>从全景到细节，沿着真实源码，建立属于你的项目认知。</p></div><button id="learnBtn" class="primary">继续探索学习路径 <span>↗</span></button></section>
+<section id="stats" class="stats" aria-label="图谱统计"></section>
+<section id="graphPage" class="page">
+<div class="sectionhead"><div><h2>项目探索器 <span class="smallpill">G6 交互画布</span></h2><p id="scopeHint">正在构建项目地图…</p></div><div class="sectionactions"><button id="motionBtn" class="quiet" aria-pressed="true">动效 开</button><button id="focusBtn" class="quiet" aria-pressed="false">⛶ 专注模式</button></div></div>
+<div class="explorer" id="explorer"><div class="grapharea">
+<div class="toolbar"><div class="tabs" aria-label="图谱视角"><button data-scope="overview" class="active">架构总览</button><button data-scope="query">问答流程</button><button data-scope="import">导入流程</button></div><label class="layoutcontrol"><span>布局</span><select id="layoutSelect" aria-label="布局方式"><option value="structured">结构布局</option><option value="radial">环形布局</option></select></label></div>
+<div class="filterbar"><label>节点<select id="typeFilter"><option value="all">全部类型</option><option value="module">模块</option><option value="file">文件</option><option value="function">函数</option><option value="class">类</option><option value="workflow">流程节点</option></select></label><label>关系<select id="relationFilter"><option value="default">结构 / 流程</option><option value="all">全部关系</option><option value="contains">层级包含</option><option value="imports">源码导入</option><option value="calls">调用候选</option><option value="flow">流程连线</option><option value="data">State 数据流</option></select></label><label><select id="statusFilter" aria-label="可信度筛选"><option value="all">全部可信度</option><option value="confirmed">源码已确认</option><option value="pending">待验证</option></select></label><button id="clearBtn" class="textbutton">重置</button></div>
+<div class="graphstage" id="stage"><div class="canvas-breadcrumb"><button id="homeBtn">掌柜智库</button><span>/</span><span id="canvasScope">项目架构</span><button id="upBtn" hidden>↑ 上一层</button></div><div id="graph" role="region" aria-label="G6 交互知识图谱，可用下方节点列表定位" tabindex="0"></div><div id="graphLoading" class="graphloading"><span class="loading-dot"></span>正在绘制知识地图…</div><div id="emptyGraph" class="empty" hidden><span>⌕</span><h3>没有匹配的节点</h3><p>试着放宽筛选，继续探索。</p><button id="emptyReset" class="quiet">清除筛选</button></div><div class="stagebadge"><span class="statusdot"></span><span id="stagebadge">SOURCE MAP</span></div><div class="zoomtools"><button id="zoomIn" title="放大" aria-label="放大">＋</button><output id="zoomLevel">100%</output><button id="zoomOut" title="缩小" aria-label="缩小">−</button><span></span><button id="fitBtn" title="适应画布" aria-label="适应画布">⊡</button><button id="resetBtn" title="重置布局" aria-label="重置布局">↺</button></div></div>
+<div class="graphfooter"><div><span class="legend solid"></span>源码已确认<span class="legend dashed"></span>待验证</div><label class="node-jump">定位<select id="nodeJump" aria-label="定位画布中的节点"><option value="">选择节点</option></select></label></div>
+</div><aside id="details" class="details" aria-live="polite"></aside></div>
+<div class="bottomnote"><span>ⓘ</span><p>拖动节点 · 滚轮缩放 · 双击深入 <span class="note-divider">/</span> 动画用于探索源码关系，不代表真实执行轨迹。</p></div>
+</section>
+<section id="pathsPage" class="page" hidden></section><section id="glossaryPage" class="page" hidden></section><div id="fatal" class="empty" hidden></div>
+<footer class="appfooter"><span>掌柜智库 <span class="footer-dot">·</span> 每一条关系，都有迹可循。</span><span>POWERED BY <a href="https://github.com/antvis/G6" target="_blank" rel="noreferrer">ANTV G6</a></span></footer>
+</main>
+<dialog id="sourceDialog"><div class="dialoghead"><div><span class="eyebrow">SOURCE EVIDENCE</span><h2 id="sourceTitle">代码证据</h2></div><button id="closeSource" class="quiet" aria-label="关闭">✕</button></div><div id="sourceBody"></div></dialog><dialog id="aboutDialog"><div class="dialoghead"><h2>数据来源与可信度</h2><button id="closeAbout" class="quiet" aria-label="关闭">✕</button></div><div id="aboutBody"></div></dialog><div id="toast" role="status" hidden></div>
+</body></html>
